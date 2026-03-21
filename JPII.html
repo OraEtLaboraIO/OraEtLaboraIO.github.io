@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <meta charset="UTF-8">
 <title>Ask JPII</title>
 
@@ -90,10 +91,12 @@ button {
 let speeches = [];
 
 // Load JSON
-fetch('speeches.json')
-.then(res => res.json())
-.then(data => {
-    speeches = data;
+fetch('speeches.json.zip')
+.then(res => res.arrayBuffer())
+.then(data => JSZip.loadAsync(data))
+.then(zip => zip.file("speeches.json").async("string"))
+.then(text => {
+    speeches = JSON.parse(text);
 });
 
 // --- SEARCH FUNCTION ---
