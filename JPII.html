@@ -91,7 +91,7 @@ button {
 let speeches = [];
 
 // Load JSON
-fetch('speeches.json.zip')
+fetch('speeches.zip')
 .then(res => res.arrayBuffer())
 .then(data => JSZip.loadAsync(data))
 .then(zip => zip.file("speeches.json").async("string"))
