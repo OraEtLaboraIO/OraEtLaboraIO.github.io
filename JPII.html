@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ask JPII</title>
+
+<style>
+body {
+    background-color: #f5e6c8;
+    color: #2b1a0f;
+    font-family: "Garamond", "Palatino Linotype", serif;
+    margin: 50px;
+    line-height: 1.7;
+    border: 8px double #8b6f47;
+    padding: 30px;
+}
+
+nav {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+a {
+    color: #6b1e1e;
+    text-decoration: none;
+}
+
+h1 {
+    text-align: center;
+    font-size: 48px;
+}
+
+h1::first-letter {
+    font-size: 72px;
+    color: #8b0000;
+}
+
+input {
+    width: 60%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #8b0000;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 25px;
+    padding: 15px;
+    border: 1px solid #8b6f47;
+    background-color: #fffaf0;
+}
+
+.highlight {
+    background-color: yellow;
+}
+
+.small-btn {
+    margin-top: 10px;
+    font-size: 14px;
+}
+</style>
+
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Home</a> |
+    <a href="projects.html">Projects</a>
+</nav>
+
+<h1>Ask JPII</h1>
+
+<p>Search the words of Pope John Paul II.</p>
+
+<input type="text" id="searchBox" placeholder="Ask about love, work, suffering...">
+<button onclick="askJPII()">Search</button>
+<button onclick="randomExcerpt()">Random</button>
+
+<div id="results"></div>
+
+<script>
+let speeches = [];
+
+// Load JSON
+fetch('speeches.json')
+.then(res => res.json())
+.then(data => {
+    speeches = data;
+});
+
+// --- SEARCH FUNCTION ---
+function askJPII() {
+    const query = document.getElementById("searchBox").value.toLowerCase();
+    const terms = query.split(" ").filter(t => t.length > 0);
+
+    let results = speeches.map(s => {
+        let text = s.Text.toLowerCase();
+        let score = 0;
+
+        terms.forEach(t => {
+            if (text.includes(t)) score++;
+        });
+
+        return { ...s, score };
+    });
+
+    results = results
+        .filter(r => r.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+    displayResults(results, terms);
+}
+
+// --- RANDOM EXCERPT ---
+function randomExcerpt() {
+    const s = speeches[Math.floor(Math.random() * speeches.length)];
+    displayResults([s], []);
+}
+
+// --- DISPLAY RESULTS ---
+function displayResults(results, terms) {
+    const container = document.getElementById("results");
+    container.innerHTML = "";
+
+    results.forEach((r, index) => {
+        const div = document.createElement("div");
+        div.className = "result";
+
+        const excerpt = getExcerpt(r.Text, terms);
+
+        div.innerHTML = `
+            <p>${highlight(excerpt, terms)}</p>
+            <button class="small-btn" onclick="expand(${index})">Expand</button>
+            <p id="full-${index}" style="display:none;">
+                ${highlight(r.Text, terms)}
+            </p>
+        `;
+
+        container.appendChild(div);
+    });
+
+    window.currentResults = results;
+}
+
+// --- EXPAND FULL TEXT ---
+function expand(i) {
+    const el = document.getElementById("full-" + i);
+    el.style.display = "block";
+}
+
+// --- EXCERPT FUNCTION ---
+function getExcerpt(text, terms) {
+    if (terms.length === 0) {
+        return text.substring(0, 300) + "...";
+    }
+
+    const lower = text.toLowerCase();
+
+    for (let t of terms) {
+        const idx = lower.indexOf(t);
+        if (idx !== -1) {
+            const start = Math.max(0, idx - 100);
+            const end = Math.min(text.length, idx + 200);
+            return "..." + text.substring(start, end) + "...";
+        }
+    }
+
+    return text.substring(0, 300) + "...";
+}
+
+// --- HIGHLIGHT ---
+function highlight(text, terms) {
+    let result = text;
+
+    terms.forEach(t => {
+        const regex = new RegExp(`(${t})`, "gi");
+        result = result.replace(regex, '<span class="highlight">$1</span>');
+    });
+
+    return result;
+}
+</script>
+
+</body>
+</html>
