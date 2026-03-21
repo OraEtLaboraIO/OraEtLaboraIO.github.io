@@ -113,22 +113,23 @@ function askJPII() {
     const query = document.getElementById("searchBox").value.toLowerCase();
     const terms = query.split(" ").filter(t => t.length > 0);
 
-    let results = speeches.map(s => {
-        let text = s.Text.toLowerCase();
-        let score = 0;
+let results = speeches.map(s => {
+    let text = s.Text;
+    let score = 0;
 
-        terms.forEach(t => {
-            const matches = text.split(t).length - 1;
-            score += matches * 2; // frequency boost
-
-            if (text.includes(t)) score += 5; // presence boost
-        });
-
-        // bonus: shorter speeches slightly favored
-        score += 1 / (text.length / 1000);
-
-        return { ...s, score };
+    terms.forEach(t => {
+        const regex = new RegExp(`\\b${t}\\b`, "gi");
+        const matches = text.match(regex);
+        const count = matches ? matches.length : 0;
+        score += count * 2;  // frequency
+        if (count > 0) score += 5; // presence boost
     });
+
+    // optional: favor shorter speeches slightly
+    score += 1 / (text.length / 1000);
+
+    return { ...s, score };
+});
 
     results = results
         .filter(r => r.score > 0)
