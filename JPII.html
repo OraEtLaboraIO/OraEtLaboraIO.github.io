@@ -94,9 +94,13 @@ let speeches = [];
 fetch('speeches.zip')
 .then(res => res.arrayBuffer())
 .then(data => JSZip.loadAsync(data))
-.then(zip => zip.file("speeches.json").async("string"))
+.then(zip => {
+    console.log("Files in ZIP:", Object.keys(zip.files));
+    return zip.file(Object.keys(zip.files)[0]).async("string");
+})
 .then(text => {
     speeches = JSON.parse(text);
+    console.log("Loaded speeches:", speeches.length);
 });
 
 // --- SEARCH FUNCTION ---
