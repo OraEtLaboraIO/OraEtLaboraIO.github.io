@@ -105,6 +105,11 @@ fetch('speeches.zip')
 
 // --- SEARCH FUNCTION ---
 function askJPII() {
+    if (speeches.length === 0) {
+        alert("Still loading data...");
+        return;
+    }
+
     const query = document.getElementById("searchBox").value.toLowerCase();
     const terms = query.split(" ").filter(t => t.length > 0);
 
@@ -113,8 +118,14 @@ function askJPII() {
         let score = 0;
 
         terms.forEach(t => {
-            if (text.includes(t)) score++;
+            const matches = text.split(t).length - 1;
+            score += matches * 2; // frequency boost
+
+            if (text.includes(t)) score += 5; // presence boost
         });
+
+        // bonus: shorter speeches slightly favored
+        score += 1 / (text.length / 1000);
 
         return { ...s, score };
     });
@@ -129,6 +140,10 @@ function askJPII() {
 
 // --- RANDOM EXCERPT ---
 function randomExcerpt() {
+    if (speeches.length === 0) {
+        alert("Loading speeches... please wait a moment.");
+        return;
+    }
     const s = speeches[Math.floor(Math.random() * speeches.length)];
     displayResults([s], []);
 }
@@ -167,21 +182,26 @@ function expand(i) {
 // --- EXCERPT FUNCTION ---
 function getExcerpt(text, terms) {
     if (terms.length === 0) {
-        return text.substring(0, 300) + "...";
+        return text.substring(0, 250) + "...";
     }
 
-    const lower = text.toLowerCase();
+    let bestIndex = -1;
 
-    for (let t of terms) {
-        const idx = lower.indexOf(t);
-        if (idx !== -1) {
-            const start = Math.max(0, idx - 100);
-            const end = Math.min(text.length, idx + 200);
-            return "..." + text.substring(start, end) + "...";
+    terms.forEach(t => {
+        const idx = text.toLowerCase().indexOf(t);
+        if (idx !== -1 && (bestIndex === -1 || idx < bestIndex)) {
+            bestIndex = idx;
         }
+    });
+
+    if (bestIndex === -1) {
+        return text.substring(0, 250) + "...";
     }
 
-    return text.substring(0, 300) + "...";
+    const start = Math.max(0, bestIndex - 120);
+    const end = Math.min(text.length, bestIndex + 200);
+
+    return "..." + text.substring(start, end) + "...";
 }
 
 // --- HIGHLIGHT ---
