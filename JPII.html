@@ -110,68 +110,63 @@ function askJPII() {
         return;
     }
 
-    const rawQuery = document.getElementById("searchBox").value.trim();
-    const lowerQuery = rawQuery.toLowerCase();
+    const raw = document.getElementById("searchBox").value;
 
-    let results = [];
+    // --- EXTRACT PHRASES IN QUOTES ---
+    const phraseMatches = [...raw.matchAll(/"([^"]+)"/g)];
+    let phrases = phraseMatches.map(m => m[1].toLowerCase());
 
-    // --- EXACT PHRASE SEARCH ---
-    if (rawQuery.startsWith('"') && rawQuery.endsWith('"')) {
-        const phrase = lowerQuery.slice(1, -1); // remove quotes
+    // --- PARSE QUERY ---
+const include = [];
+const exclude = [];
 
-        results = speeches
-            .filter(s => s.Text.toLowerCase().includes(phrase))
-            .slice(0, 5);
+const tokens = raw.match(/NOT\s+"[^"]+"|"[^"]+"/gi) || [];
 
-        if (results.length === 0) {
-            document.getElementById("results").innerHTML = "<p>No exact matches found.</p>";
-            return;
-        }
-
-        displayResults(results, [phrase]);
-        return;
+tokens.forEach(token => {
+    if (token.toUpperCase().startsWith("NOT")) {
+        const phrase = token.match(/"([^"]+)"/)[1].toLowerCase();
+        exclude.push(phrase);
+    } else {
+        const phrase = token.replace(/"/g, "").toLowerCase();
+        include.push(phrase);
+    }
+});
+    // Handle NOT
+    const notParts = remaining.split(/NOT/i);
+    if (notParts.length > 1) {
+        mustNotHave = phrases.slice(-1); // last phrase assumed after NOT
+        mustHave = phrases.slice(0, -1);
+    } else {
+        mustHave = phrases;
     }
 
-    // --- NORMAL WORD SEARCH ---
-    const terms = lowerQuery.split(" ").filter(t => t.length > 0);
+    // --- FILTER SPEECHES ---
+let results = speeches.filter(s => {
+    const text = s.Text.toLowerCase();
 
-    results = speeches.map(s => {
-        let text = s.Text;
-        let score = 0;
-        let matched = false;
+    // must include all
+    for (let p of include) {
+        if (!text.includes(p)) return false;
+    }
 
-        terms.forEach(t => {
-            const regex = new RegExp(`\\b${t}\\b`, "gi");
-            const matches = text.match(regex);
-            const count = matches ? matches.length : 0;
+    // must exclude all
+    for (let p of exclude) {
+        if (text.includes(p)) return false;
+    }
 
-            if (count > 0) {
-                matched = true;
-                score += count * 2;
-                score += 5;
-            }
-        });
+    return true;
+});
 
-        if (matched) {
-            score += 1 / (text.length / 1000);
-        }
-
-        return { ...s, score };
-    });
-
-    results = results
-        .filter(r => r.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5);
+    // --- LIMIT RESULTS ---
+    results = results.slice(0, 5);
 
     if (results.length === 0) {
         document.getElementById("results").innerHTML = "<p>No results found.</p>";
         return;
     }
 
-    displayResults(results, terms);
+    displayResults(results, mustHave);
 }
-
 // --- RANDOM EXCERPT ---
 function randomExcerpt() {
     if (speeches.length === 0) {
