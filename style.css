@@ -12,9 +12,9 @@ body {
 
 /* --- MAIN CONTENT AREA (THIS FIXES READABILITY) --- */
 .main-container {
-    max-width: 700px;
-    margin: 60px auto;
-    padding: 30px;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 40px;
 
     background-color: rgba(245, 230, 200, 0.92);
 
@@ -31,7 +31,7 @@ body::before {
     background-image: url("border.png"); /* your renamed image */
     background-size: cover;
     background-position: center;
-    background-color: #2b1a0f;  /* fills empty space */
+     /* fills empty space: background-color: #2b1a0f;  */
     z-index: -1;
     pointer-events: none;
 }
