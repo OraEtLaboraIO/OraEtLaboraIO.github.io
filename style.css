@@ -12,20 +12,14 @@ body {
 
 /* --- MAIN CONTENT AREA (THIS FIXES READABILITY) --- */
 .main-container {
-    max-width: 700px;   /* smaller so it fits inside border */
+    max-width: 700px;
     margin: 60px auto;
     padding: 30px;
 
     background-color: rgba(245, 230, 200, 0.92);
-}
 
-    /* subtle texture */
     backdrop-filter: blur(2px);
-
-    /* clean readable box */
     border-radius: 8px;
-
-    /* shadow for separation */
     box-shadow: 0 0 25px rgba(0,0,0,0.6);
 }
 
