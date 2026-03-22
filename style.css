@@ -12,7 +12,7 @@ body {
 
 /* --- MAIN CONTENT AREA (THIS FIXES READABILITY) --- */
 .main-container {
-    max-width: 700px;
+    max-width: 1024px;
     margin: 60px auto;
     padding: 30px;
 
