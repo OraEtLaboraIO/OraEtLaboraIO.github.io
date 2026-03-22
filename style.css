@@ -12,12 +12,12 @@ body {
 
 /* --- MAIN CONTENT AREA (THIS FIXES READABILITY) --- */
 .main-container {
-    max-width: 900px;            /* wider content */
-    margin: 40px auto;           /* center it */
-    padding: 40px;
+    max-width: 700px;   /* smaller so it fits inside border */
+    margin: 60px auto;
+    padding: 30px;
 
-    /* parchment readability layer */
     background-color: rgba(245, 230, 200, 0.92);
+}
 
     /* subtle texture */
     backdrop-filter: blur(2px);
