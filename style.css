@@ -29,7 +29,7 @@ body::before {
     position: fixed;
     inset: 0;
     background-image: url("border.png"); /* your renamed image */
-    background-size: cover;
+    background-size: contain;
     background-position: center;
      /* fills empty space: background-color: #2b1a0f;  */
     z-index: -1;
