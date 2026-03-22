@@ -49,52 +49,36 @@ function askJPII() {
 
     const raw = document.getElementById("searchBox").value;
 
-    // --- EXTRACT PHRASES IN QUOTES ---
-    const phraseMatches = [...raw.matchAll(/"([^"]+)"/g)];
-    let phrases = phraseMatches.map(m => m[1].toLowerCase());
+    const include = [];
+    const exclude = [];
 
-    // --- PARSE QUERY ---
-const include = [];
-const exclude = [];
+    // Parse phrases with NOT support
+    const tokens = raw.match(/NOT\s+"[^"]+"|"[^"]+"/gi) || [];
 
-const tokens = raw.match(/NOT\s+"[^"]+"|"[^"]+"/gi) || [];
+    tokens.forEach(token => {
+        if (token.toUpperCase().startsWith("NOT")) {
+            const phrase = token.match(/"([^"]+)"/)[1].toLowerCase();
+            exclude.push(phrase);
+        } else {
+            const phrase = token.replace(/"/g, "").toLowerCase();
+            include.push(phrase);
+        }
+    });
 
-tokens.forEach(token => {
-    if (token.toUpperCase().startsWith("NOT")) {
-        const phrase = token.match(/"([^"]+)"/)[1].toLowerCase();
-        exclude.push(phrase);
-    } else {
-        const phrase = token.replace(/"/g, "").toLowerCase();
-        include.push(phrase);
-    }
-});
-    // Handle NOT
-    const notParts = remaining.split(/NOT/i);
-    if (notParts.length > 1) {
-        mustNotHave = phrases.slice(-1); // last phrase assumed after NOT
-        mustHave = phrases.slice(0, -1);
-    } else {
-        mustHave = phrases;
-    }
+    let results = speeches.filter(s => {
+        const text = s.Text.toLowerCase();
 
-    // --- FILTER SPEECHES ---
-let results = speeches.filter(s => {
-    const text = s.Text.toLowerCase();
+        for (let p of include) {
+            if (!text.includes(p)) return false;
+        }
 
-    // must include all
-    for (let p of include) {
-        if (!text.includes(p)) return false;
-    }
+        for (let p of exclude) {
+            if (text.includes(p)) return false;
+        }
 
-    // must exclude all
-    for (let p of exclude) {
-        if (text.includes(p)) return false;
-    }
+        return true;
+    });
 
-    return true;
-});
-
-    // --- LIMIT RESULTS ---
     results = results.slice(0, 5);
 
     if (results.length === 0) {
@@ -102,7 +86,7 @@ let results = speeches.filter(s => {
         return;
     }
 
-    displayResults(results, mustHave);
+    displayResults(results, include);
 }
 // --- RANDOM EXCERPT ---
 function randomExcerpt() {
