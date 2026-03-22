@@ -1,0 +1,145 @@
+/* --- GLOBAL BODY --- */
+body {
+    background-color: #f5e6c8;
+    color: #2b1a0f;
+    font-family: "Garamond", "Palatino Linotype", serif;
+    margin: 40px;
+    line-height: 1.7;
+
+    /* parchment feel */
+    background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+    background-size: 6px 6px;
+
+    /* manuscript border */
+    border: 10px double #6b4c2a;
+    padding: 30px;
+}
+
+/* --- HEADER --- */
+h1 {
+    text-align: center;
+    font-size: 48px;
+    letter-spacing: 2px;
+}
+
+h1::first-letter {
+    font-size: 72px;
+    color: #8b0000;
+}
+
+h2 {
+    text-align: center;
+    font-style: italic;
+}
+
+/* --- NAV --- */
+nav {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+a {
+    color: #6b1e1e;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* --- SECTION HEADERS --- */
+h3 {
+    border-bottom: 2px solid #8b6f47;
+    padding-bottom: 5px;
+    margin-top: 40px;
+    text-transform: uppercase;
+}
+
+/* --- RESULTS / CARDS --- */
+.result {
+    margin-top: 25px;
+    padding: 15px;
+    border: 2px solid #8b6f47;
+    background-color: #fffaf0;
+
+    /* subtle glow */
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+}
+
+/* --- BUTTONS --- */
+button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #8b0000;
+    color: white;
+    border: 1px solid #5a0000;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #a00000;
+}
+
+/* --- INPUT --- */
+input {
+    width: 60%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #8b6f47;
+}
+
+/* --- HIGHLIGHT --- */
+.highlight {
+    background-color: gold;
+}
+
+/* --- IMAGE STYLE (CRITICAL FOR YOUR THEME) --- */
+img {
+    display: block;
+    margin: 20px auto;
+    max-width: 90%;
+
+    border: 6px solid #6b4c2a;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
+}
+
+/* --- DECORATIVE CROSSES --- */
+body::before {
+    content: "✠ Veritas";
+    position: fixed;
+    top: 10px;
+    left: 15px;
+    font-size: 16px;
+    color: #8b0000;
+}
+
+body::after {
+    content: "Aequitas ✠";
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    font-size: 16px;
+    color: #8b0000;
+}
+
+/* --- SIDE BORDER ROSARY EFFECT --- */
+html::before, html::after {
+    content: "✠ ✠ ✠ ✠ ✠ ✠ ✠ ✠ ✠ ✠ ✠";
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 20px;
+    color: #8b0000;
+    font-size: 14px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+
+html::before {
+    left: 5px;
+}
+
+html::after {
+    right: 5px;
+}
