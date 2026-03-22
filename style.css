@@ -28,9 +28,8 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background-image: url("border.png");
-    background-size: contain;   /* 🔥 THIS is the fix */
-    background-repeat: no-repeat;
+    background-image: url("border.png"); /* your renamed image */
+    background-size: cover;
     background-position: center;
     background-color: #2b1a0f;  /* fills empty space */
     z-index: -1;
