@@ -179,7 +179,7 @@ function highlight(text, terms) {
     <button onclick="clicked()">Send</button>
 
 </div>
-
+<div>
 <script>
 let chatCount = 0;
 let greeted = false;
@@ -231,14 +231,15 @@ function clicked() {
     }
 
     // AFTER 3 CHATS
-    else {
-        if (postLimitIndex < postLimitMessages.length) {
-            response = postLimitMessages[postLimitIndex];
-            postLimitIndex++;
-        } else {
-            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
-        }
+else {
+    if (postLimitIndex === 0) postLimitIndex = 1; // skip the duplicate
+    if (postLimitIndex < postLimitMessages.length) {
+        response = postLimitMessages[postLimitIndex];
+        postLimitIndex++;
+    } else {
+        response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
     }
+}
 
     // fake "thinking delay"
     setTimeout(() => {
@@ -247,6 +248,7 @@ function clicked() {
     }, 500);
 }
 </script>
+    </div>
 <footer>
 ✠ &nbsp;&nbsp;&nbsp; <span class="footer-text">Veritas</span> &nbsp;&nbsp;&nbsp; ✠
 &nbsp;&nbsp;&nbsp;
