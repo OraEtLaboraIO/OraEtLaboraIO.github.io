@@ -167,7 +167,83 @@ function highlight(text, terms) {
 }
 </script>
 </div>
+<p id="instructions">Please enter text</p>
 
+<div id="chatwindow" style="width: 600px; height: 300px; overflow-y: auto; border: 1px solid black; padding: 10px;">
+</div>
+
+<br>
+
+<input type="text" id="userinput" style="width: 400px;">
+<button onclick="clicked()">Send</button>
+
+<script>
+let chatCount = 0;
+let greeted = false;
+let postLimitIndex = 0;
+
+const postLimitMessages = [
+"I’ve enjoyed talking with you, but I have to say my office. Maybe you could try to make daily Mass!",
+"I really cannot spend more time chatting with you… consider instead praying for Pope Leo and the Holy Souls in Purgatory!",
+"Respectfully, you will better spend your time doing something else… Go outside, for example.",
+"Ok fine, we can pray together. Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
+"Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
+"Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
+"Really though, you should get a non-internet-facing hobby"
+];
+
+function clicked() {
+    let chat = document.getElementById("chatwindow");
+    let input = document.getElementById("userinput");
+    let text = input.value.toLowerCase();
+
+    // display user message
+    chat.innerHTML += "<p><b>You:</b> " + text + "</p>";
+    input.value = "";
+
+    let response = "";
+
+    // FIRST CHAT LOGIC
+    if (chatCount === 0) {
+        if (text.includes("hi") || text.includes("hello") || text.includes("howdy")) {
+            response = "Salve!";
+            greeted = true;
+            chatCount++;
+        } else {
+            response = "Aren’t you supposed to greet me first?";
+            // reset behavior (stay at chatCount 0)
+        }
+    }
+
+    // SECOND CHAT
+    else if (chatCount === 1) {
+        response = "While I appreciate technology and what Zach was going for, it’s better we chat in prayer.";
+        chatCount++;
+    }
+
+    // THIRD CHAT
+    else if (chatCount === 2) {
+        response = "I’ve enjoyed talking with you, but I have to say my office. Maybe you could try to make daily Mass!";
+        chatCount++;
+    }
+
+    // AFTER 3 CHATS
+    else {
+        if (postLimitIndex < postLimitMessages.length) {
+            response = postLimitMessages[postLimitIndex];
+            postLimitIndex++;
+        } else {
+            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
+        }
+    }
+
+    // fake "thinking delay"
+    setTimeout(() => {
+        chat.innerHTML += "<p><b>JPII:</b> " + response + "</p>";
+        chat.scrollTop = chat.scrollHeight;
+    }, 500);
+}
+</script>
 <footer>
 ✠ &nbsp;&nbsp;&nbsp; <span class="footer-text">Veritas</span> &nbsp;&nbsp;&nbsp; ✠
 &nbsp;&nbsp;&nbsp;
