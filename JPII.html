@@ -166,10 +166,18 @@ function highlight(text, terms) {
     return result;
 }
 </script>
-</div>
-<p id="instructions">Please enter text</p>
+<div style="max-width: 600px; margin: 0 auto; padding: 10px;">
+    
+    <p id="instructions">Please enter text</p>
 
-<div id="chatwindow" style="width: 600px; height: 300px; overflow-y: auto; border: 1px solid black; padding: 10px;">
+    <div id="chatwindow" style="width: 100%; height: 300px; overflow-y: auto; border: 1px solid black; padding: 10px; background-color: #fdfdfd;">
+    </div>
+
+    <br>
+
+    <input type="text" id="userinput" style="width: 80%;">
+    <button onclick="clicked()">Send</button>
+
 </div>
 
 <br>
