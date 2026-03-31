@@ -159,8 +159,19 @@ function highlight(text, terms) {
    CHATBOT
 ========================= */
 let chatStage = 0;
-let prayerCount = 0;
-let hobbyTriggered = false;
+let sequenceIndex = 0;
+
+// Your full sequence AFTER "daily Mass"
+const sequence = [
+"I really cannot spend more time chatting with you… consider instead praying for Pope Leo and the Holy Souls in Purgatory!",
+"Respectfully, you will better spend your time doing something else… Go outside, for example.",
+"Ok fine, we can pray together. Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
+"Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
+"Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
+"Really though, you should get a non-internet-facing hobby"
+];
+
+const prayer = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
 
 window.clicked = function () {
     const chat = document.getElementById("chatwindow");
@@ -174,7 +185,7 @@ window.clicked = function () {
 
     let response = "";
 
-    // --- STAGE LOGIC ---
+    // --- GREETING ---
     if (chatStage === 0) {
         if (text.includes("hello")) {
             response = "Salve!";
@@ -184,36 +195,41 @@ window.clicked = function () {
         }
     }
 
+    // --- SECOND MESSAGE ---
     else if (chatStage === 1) {
         response = "While I appreciate technology, it’s better we chat in prayer.";
         chatStage = 2;
     }
 
+    // --- DAILY MASS (ONLY ONCE) ---
     else if (chatStage === 2) {
         response = "I’ve enjoyed talking with you, but I have to say my office. Maybe you could try to make daily Mass!";
         chatStage = 3;
     }
 
+    // --- CONTROLLED SEQUENCE ---
     else {
-        // --- POST-LIMIT CONTROL ---
-        if (prayerCount < 2) {
-            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
-            prayerCount++;
-        } 
-        else if (!hobbyTriggered) {
-            response = "Really though, you should get a non-internet-facing hobby";
-            hobbyTriggered = true;
-        } 
-        else {
-            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
+        if (sequenceIndex < sequence.length) {
+            response = sequence[sequenceIndex];
+            sequenceIndex++;
+        } else {
+            response = prayer; // forever after
         }
     }
 
-    setTimeout(() => {
-        chat.innerHTML += `<p><b>JPII:</b> ${response}</p>`;
-        chat.scrollTop = chat.scrollHeight;
-    }, 400);
+setTimeout(() => {
+    chat.innerHTML += `<p><b>JPII:</b> ${response}</p>`;
+    chat.scrollTop = chat.scrollHeight;
+}, 400);
 };
+
+// ✅ ENTER KEY SUPPORT (correct placement)
+document.getElementById("userinput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        clicked();
+    }
+});
 </script>
 
 </body>
