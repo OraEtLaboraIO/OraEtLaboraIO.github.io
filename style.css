@@ -9,21 +9,7 @@ body {
     font-family: "Garamond", "Palatino Linotype", serif;
     color: #2b1a0f;
 }
-/*making sure footer is good*/
-html, body {
-    height: 100%;
-    margin: 0;
-}
 
-.main-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-footer {
-    margin-top: auto;
-}
 /* --- MAIN CONTENT AREA (THIS FIXES READABILITY) --- */
 .main-container {
     max-width: 900px;
