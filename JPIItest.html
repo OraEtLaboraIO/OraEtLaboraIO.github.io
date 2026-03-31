@@ -161,17 +161,9 @@ function highlight(text, terms) {
 /* =========================
    CHATBOT
 ========================= */
-let chatCount = 0;
-let postLimitIndex = 0;
-
-const postLimitMessages = [
-"I’ve enjoyed talking with you, but I have to say my office. Maybe you could try to make daily Mass!",
-"I really cannot spend more time chatting with you… consider instead praying for Pope Leo and the Holy Souls in Purgatory!",
-"Respectfully, you will better spend your time doing something else… Go outside, for example.",
-"Ok fine, we can pray together. Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
-"Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
-"Really though, you should get a non-internet-facing hobby"
-];
+let chatStage = 0;
+let prayerCount = 0;
+let hobbyTriggered = false;
 
 window.clicked = function () {
     const chat = document.getElementById("chatwindow");
@@ -185,21 +177,39 @@ window.clicked = function () {
 
     let response = "";
 
-    if (chatCount === 0) {
+    // --- STAGE LOGIC ---
+    if (chatStage === 0) {
         if (text.includes("hello")) {
             response = "Salve!";
-            chatCount++;
+            chatStage = 1;
         } else {
             response = "Aren’t you supposed to say hello first?";
         }
-    } else if (chatCount === 1) {
+    }
+
+    else if (chatStage === 1) {
         response = "While I appreciate technology, it’s better we chat in prayer.";
-        chatCount++;
-    } else if (chatCount === 2) {
-        response = postLimitMessages[0];
-        chatCount++;
-    } else {
-        response = postLimitMessages[Math.min(postLimitIndex++, postLimitMessages.length - 1)];
+        chatStage = 2;
+    }
+
+    else if (chatStage === 2) {
+        response = "I’ve enjoyed talking with you, but I have to say my office. Maybe you could try to make daily Mass!";
+        chatStage = 3;
+    }
+
+    else {
+        // --- POST-LIMIT CONTROL ---
+        if (prayerCount < 2) {
+            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
+            prayerCount++;
+        } 
+        else if (!hobbyTriggered) {
+            response = "Really though, you should get a non-internet-facing hobby";
+            hobbyTriggered = true;
+        } 
+        else {
+            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
+        }
     }
 
     setTimeout(() => {
