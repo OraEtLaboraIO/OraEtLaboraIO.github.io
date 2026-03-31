@@ -3,12 +3,13 @@
 <head>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<meta charset="UTF-8">
-<title>Ask JPII</title>
-
+    <meta charset="UTF-8">
+    <title>Ask JPII</title>
 </head>
+
 <body>
 <div class="main-container">
+
 <nav>
     <a href="index.html">Home</a> |
     <a href="projects.html">Projects</a>
@@ -24,62 +25,72 @@
 
 <div id="results"></div>
 
+<hr>
+
+<!-- CHATBOT -->
+<div style="max-width: 600px; margin: 0 auto; padding: 10px;">
+    
+    <p id="instructions">Please ask JPII anything!</p>
+
+    <div id="chatwindow" style="width: 100%; height: 300px; overflow-y: auto; border: 1px solid black; padding: 10px; background-color: #f8f5e4;"></div>
+
+    <br>
+
+    <input type="text" id="userinput" style="width: 80%;">
+    <button onclick="clicked()">Send</button>
+
+</div>
+    <!-- FOOTER-->
+<footer>
+✠ &nbsp;&nbsp;&nbsp; <span class="footer-text">Veritas</span> &nbsp;&nbsp;&nbsp; ✠
+&nbsp;&nbsp;&nbsp;
+<span class="footer-text">Contemplare et Contemplata Aliis Tradere</span>
+&nbsp;&nbsp;&nbsp;
+✠ &nbsp;&nbsp;&nbsp; <span class="footer-text">Laudare, Benedicere, Praedicare</span> &nbsp;&nbsp;&nbsp; ✠
+</footer>
+</div>
+
+<!-- ALL SCRIPTS AT BOTTOM -->
 <script>
+/* =========================
+   SEARCH ENGINE
+========================= */
 let speeches = [];
 
-// Load JSON
 fetch('speeches.zip')
 .then(res => res.arrayBuffer())
 .then(data => JSZip.loadAsync(data))
-.then(zip => {
-    console.log("Files in ZIP:", Object.keys(zip.files));
-    return zip.file(Object.keys(zip.files)[0]).async("string");
-})
+.then(zip => zip.file(Object.keys(zip.files)[0]).async("string"))
 .then(text => {
     speeches = JSON.parse(text);
     console.log("Loaded speeches:", speeches.length);
 });
 
-// --- SEARCH FUNCTION ---
-function askJPII() {
+window.askJPII = function () {
     if (speeches.length === 0) {
         alert("Still loading data...");
         return;
     }
 
     const raw = document.getElementById("searchBox").value;
-
     const include = [];
     const exclude = [];
 
-    // Parse phrases with NOT support
     const tokens = raw.match(/NOT\s+"[^"]+"|"[^"]+"/gi) || [];
 
     tokens.forEach(token => {
         if (token.toUpperCase().startsWith("NOT")) {
-            const phrase = token.match(/"([^"]+)"/)[1].toLowerCase();
-            exclude.push(phrase);
+            exclude.push(token.match(/"([^"]+)"/)[1].toLowerCase());
         } else {
-            const phrase = token.replace(/"/g, "").toLowerCase();
-            include.push(phrase);
+            include.push(token.replace(/"/g, "").toLowerCase());
         }
     });
 
     let results = speeches.filter(s => {
         const text = s.Text.toLowerCase();
-
-        for (let p of include) {
-            if (!text.includes(p)) return false;
-        }
-
-        for (let p of exclude) {
-            if (text.includes(p)) return false;
-        }
-
-        return true;
-    });
-
-    results = results.slice(0, 5);
+        return include.every(p => text.includes(p)) &&
+               !exclude.some(p => text.includes(p));
+    }).slice(0,5);
 
     if (results.length === 0) {
         document.getElementById("results").innerHTML = "<p>No results found.</p>";
@@ -87,32 +98,29 @@ function askJPII() {
     }
 
     displayResults(results, include);
-}
-// --- RANDOM EXCERPT ---
-function randomExcerpt() {
+};
+
+window.randomExcerpt = function () {
     if (speeches.length === 0) {
-        alert("Loading speeches... please wait a moment.");
+        alert("Loading speeches...");
         return;
     }
     const s = speeches[Math.floor(Math.random() * speeches.length)];
     displayResults([s], []);
-}
+};
 
-// --- DISPLAY RESULTS ---
 function displayResults(results, terms) {
     const container = document.getElementById("results");
     container.innerHTML = "";
 
-    results.forEach((r, index) => {
+    results.forEach((r, i) => {
         const div = document.createElement("div");
         div.className = "result";
 
-        const excerpt = getExcerpt(r.Text, terms);
-
         div.innerHTML = `
-            <p>${highlight(excerpt, terms)}</p>
-            <button class="small-btn" onclick="expand(${index})">Expand</button>
-            <p id="full-${index}" style="display:none;">
+            <p>${highlight(getExcerpt(r.Text, terms), terms)}</p>
+            <button onclick="expand(${i})">Expand</button>
+            <p id="full-${i}" style="display:none;">
                 ${highlight(r.Text, terms)}
             </p>
         `;
@@ -123,136 +131,91 @@ function displayResults(results, terms) {
     window.currentResults = results;
 }
 
-// --- EXPAND FULL TEXT ---
-function expand(i) {
-    const el = document.getElementById("full-" + i);
-    el.style.display = "block";
-}
+window.expand = function(i) {
+    document.getElementById("full-" + i).style.display = "block";
+};
 
-// --- EXCERPT FUNCTION ---
 function getExcerpt(text, terms) {
-    if (terms.length === 0) {
-        return text.substring(0, 250) + "...";
-    }
+    if (!terms.length) return text.substring(0,250) + "...";
 
-    let bestIndex = -1;
+    let idx = terms.map(t => text.toLowerCase().indexOf(t))
+                   .filter(i => i !== -1)
+                   .sort((a,b)=>a-b)[0];
 
-    terms.forEach(t => {
-        const idx = text.toLowerCase().indexOf(t);
-        if (idx !== -1 && (bestIndex === -1 || idx < bestIndex)) {
-            bestIndex = idx;
-        }
-    });
+    if (idx === undefined) return text.substring(0,250) + "...";
 
-    if (bestIndex === -1) {
-        return text.substring(0, 250) + "...";
-    }
-
-    const start = Math.max(0, bestIndex - 120);
-    const end = Math.min(text.length, bestIndex + 200);
-
-    return "..." + text.substring(start, end) + "...";
+    return "..." + text.substring(Math.max(0, idx-120), idx+200) + "...";
 }
 
-// --- HIGHLIGHT ---
 function highlight(text, terms) {
-    let result = text;
-
     terms.forEach(t => {
-        const regex = new RegExp(`(${t})`, "gi");
-        result = result.replace(regex, '<span class="highlight">$1</span>');
+        text = text.replace(new RegExp(`(${t})`, "gi"),
+            '<span class="highlight">$1</span>');
     });
-
-    return result;
+    return text;
 }
-</script>
-<div style="max-width: 600px; margin: 0 auto; padding: 10px;">
-    
-    <p id="instructions">Please ask JPII anything!</p>
 
-    <div id="chatwindow" style="width: 100%; height: 300px; overflow-y: auto; border: 1px solid black; padding: 10px; background-color: #f8f5e4;">
-    </div>
 
-    <br>
-
-    <input type="text" id="userinput" style="width: 80%;">
-    <button onclick="clicked()">Send</button>
-
-</div>
-<script>
-let chatCount = 0;
-let greeted = false;
-let postLimitIndex = 0;
-
-const postLimitMessages = [
-"I’ve enjoyed talking with you, but I have to say my office. Maybe you could try to make daily Mass!",
-"I really cannot spend more time chatting with you… consider instead praying for Pope Leo and the Holy Souls in Purgatory!",
-"Respectfully, you will better spend your time doing something else… Go outside, for example.",
-"Ok fine, we can pray together. Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
-"Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
-"Domine Iesu Christe, Fili Dei, miserere mei, peccatoris",
-"Really though, you should get a non-internet-facing hobby"
-];
+/* =========================
+   CHATBOT
+========================= */
+let chatStage = 0;
+let prayerCount = 0;
+let hobbyTriggered = false;
 
 window.clicked = function () {
-    let chat = document.getElementById("chatwindow");
-    let input = document.getElementById("userinput");
-    let text = (input.value || "").toLowerCase();
+    const chat = document.getElementById("chatwindow");
+    const input = document.getElementById("userinput");
+    const text = (input.value || "").toLowerCase();
 
-    // display user message
-    chat.innerHTML += "<p><b>You:</b> " + text + "</p>";
+    if (!text.trim()) return;
+
+    chat.innerHTML += `<p><b>You:</b> ${text}</p>`;
     input.value = "";
 
     let response = "";
 
-    // FIRST CHAT LOGIC
-    if (chatCount === 0) {
-        if text.includes("hello") {
+    // --- STAGE LOGIC ---
+    if (chatStage === 0) {
+        if (text.includes("hello")) {
             response = "Salve!";
-            greeted = true;
-            chatCount++;
+            chatStage = 1;
         } else {
             response = "Aren’t you supposed to say hello first?";
-            // reset behavior (stay at chatCount 0)
         }
     }
 
-    // SECOND CHAT
-    else if (chatCount === 1) {
-        response = "While I appreciate technology and what Zach was going for, it’s better we chat in prayer.";
-        chatCount++;
+    else if (chatStage === 1) {
+        response = "While I appreciate technology, it’s better we chat in prayer.";
+        chatStage = 2;
     }
 
-    // THIRD CHAT
-    else if (chatCount === 2) {
+    else if (chatStage === 2) {
         response = "I’ve enjoyed talking with you, but I have to say my office. Maybe you could try to make daily Mass!";
-        chatCount++;
+        chatStage = 3;
     }
 
-    // AFTER 3 CHATS
-else {
-    if (postLimitIndex === 0) postLimitIndex = 1; // skip the duplicate
-    if (postLimitIndex < postLimitMessages.length) {
-        response = postLimitMessages[postLimitIndex];
-        postLimitIndex++;
-    } else {
-        response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
+    else {
+        // --- POST-LIMIT CONTROL ---
+        if (prayerCount < 2) {
+            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
+            prayerCount++;
+        } 
+        else if (!hobbyTriggered) {
+            response = "Really though, you should get a non-internet-facing hobby";
+            hobbyTriggered = true;
+        } 
+        else {
+            response = "Domine Iesu Christe, Fili Dei, miserere mei, peccatoris";
+        }
     }
-}
 
-    // fake "thinking delay"
     setTimeout(() => {
-        chat.innerHTML += "<p><b>JPII:</b> " + response + "</p>";
+        chat.innerHTML += `<p><b>JPII:</b> ${response}</p>`;
         chat.scrollTop = chat.scrollHeight;
-    }, 500);
-}
+    }, 400);
+};
 </script>
-<footer style="width:100%; text-align:center; padding:10px 0; background:#f0f0f0;">
-✠ &nbsp;&nbsp;&nbsp; <span class="footer-text">Veritas</span> &nbsp;&nbsp;&nbsp; ✠
-&nbsp;&nbsp;&nbsp;
-<span class="footer-text">Contemplare et Contemplata Aliis Tradere</span>
-&nbsp;&nbsp;&nbsp;
-✠ &nbsp;&nbsp;&nbsp; <span class="footer-text">Laudare, Benedicere, Praedicare</span> &nbsp;&nbsp;&nbsp; ✠
-</footer>
+
 </body>
 </html>
