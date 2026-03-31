@@ -194,10 +194,10 @@ const postLimitMessages = [
 "Really though, you should get a non-internet-facing hobby"
 ];
 
-function clicked() {
+window.clicked = function () {
     let chat = document.getElementById("chatwindow");
     let input = document.getElementById("userinput");
-    let text = input.value.toLowerCase();
+    let text = (input.value || "").toLowerCase();
 
     // display user message
     chat.innerHTML += "<p><b>You:</b> " + text + "</p>";
